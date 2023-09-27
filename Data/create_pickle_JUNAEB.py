@@ -9,6 +9,7 @@ ruta_pickle = 'DATA_JUNAEB.pkl'
 
 data = dict()
 for mes in meses:
+    print(f'Creating dataframe: {mes}')
     path = os.path.join(folder, f'{mes}_JUNAEB.xlsx')
     data[mes[:3]] = pd.read_excel(path)
 
