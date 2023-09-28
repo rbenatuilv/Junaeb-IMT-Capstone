@@ -1,1 +1,4 @@
 *.pkl
+colegios_filtrados/
+Comunas/
+comunas_fixed/
