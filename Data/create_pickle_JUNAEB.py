@@ -15,4 +15,3 @@ for mes in meses:
 
 with open(ruta_pickle, 'wb') as archivo:
     pickle.dump(data, archivo)
-
