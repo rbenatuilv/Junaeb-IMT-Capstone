@@ -2,6 +2,9 @@ from pandas import read_parquet
 from pyarrow import Table
 from pyarrow.parquet import write_table
 from parametros import MAXSZ, MINSZ
+import os
+
+
 
 def find(u, padre):
     if u == padre[u]:
@@ -83,7 +86,7 @@ def dfs3(v, p, edges, UT, t):
         dfs3(u, v, edges, UT, t)
 
 def solve(edges, profit, UT, t, root, subv, subsz):
-
+    
     dfs(root, -1, edges, profit, subv, subsz)
     
     totalv = subv[root]
@@ -107,7 +110,8 @@ def solve(edges, profit, UT, t, root, subv, subsz):
 
     return
 
-data = read_parquet('data_final.parquet')
+path = os.path.join('Solution1','data_final.parquet')
+data = read_parquet(path)
 
 n = len(data)
 
@@ -122,4 +126,5 @@ t = [0]
 solve(edges, profit, UT, t, 0, subv, subsz)
 
 data['UT'] = UT
-write_table(Table.from_pandas(data), 'data_final.parquet')
+write_table(Table.from_pandas(data), 'Solution1/data_final_3.parquet')
+print(t[0])
