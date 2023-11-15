@@ -1,2 +1,0 @@
-MAXSZ = 250
-MINSZ = 40
