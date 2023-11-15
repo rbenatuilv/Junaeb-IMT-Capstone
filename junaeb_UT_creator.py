@@ -74,7 +74,7 @@ print('Done!\n')
 #################### Save data ##########################
 
 print('SAVING DATA...', end='')
-path = os.path.join('Colegios(Continental)2020(UTs).xlsx')
+path = os.path.join('Colegios2020(UTs).xlsx')
 dbm.save_data(schools, path)
 print('Done!\n')
 
