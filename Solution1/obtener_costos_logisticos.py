@@ -18,7 +18,7 @@ metro_litro = 10*10**3
 precio_litro = 1300
 viajes = 90
 factor_entero = 10**5
-factor = (precio_litro*viajes)/(metro_litro*factor_entero) #Factor de conversión a pesos
+factor = (precio_litro*viajes) / (metro_litro*factor_entero) #Factor de conversión a pesos
 
 n = len(data)
 suma = [0 for _ in range(n)]
