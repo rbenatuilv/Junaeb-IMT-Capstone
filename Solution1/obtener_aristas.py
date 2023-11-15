@@ -4,6 +4,7 @@ from pandas import read_parquet
 from pyarrow import Table
 from pyarrow.parquet import write_table
 
+
 data = read_parquet('data_final.parquet')
 n = len(data)
 
