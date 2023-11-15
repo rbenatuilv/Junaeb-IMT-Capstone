@@ -10,8 +10,8 @@ try:
     with open(path_regs, 'rb') as file:
         REGS = pickle.load(file)
 except FileNotFoundError:
-    path_gpd = os.path.join(os.getcwd(), 'modules', 'aux_data', 'Regiones')
-    REGS = gpd.read_file(path_gpd)
+    path_gpd1 = os.path.join(os.getcwd(), 'modules', 'aux_data', 'Regiones')
+    REGS = gpd.read_file(path_gpd1).to_crs(epsg=4326)
     with open(path_regs, 'wb') as file:
         pickle.dump(REGS, file)
 
@@ -21,8 +21,8 @@ try:
     with open(path_regs, 'rb') as file:
         REGS_CONT = pickle.load(file)
 except FileNotFoundError:
-    path_gpd = os.path.join(os.getcwd(), 'modules', 'aux_data', 'Regiones_cont')
-    REGS_CONT = gpd.read_file(path_gpd)
+    path_gpd2 = os.path.join(os.getcwd(), 'modules', 'aux_data', 'Regiones_cont')
+    REGS_CONT = gpd.read_file(path_gpd2).to_crs(epsg=4326)
     with open(path_regs_cont, 'wb') as file:
         pickle.dump(REGS_CONT, file)
 
