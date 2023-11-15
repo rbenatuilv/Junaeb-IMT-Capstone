@@ -28,8 +28,8 @@ except FileNotFoundError:
 
 
 # Params for UT solver
-MAXSZ = 150
-MINSZ = 30
+MAXSZ = 250
+MINSZ = 50
 
 # Params for cost calculation
 BENEF_RACION = 845
