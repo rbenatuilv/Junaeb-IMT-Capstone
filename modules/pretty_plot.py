@@ -84,8 +84,7 @@ def single_plot_uts(reg_number, schools, crs: str = 'EPSG:4326',
         if save:
             path = f'{folder}/UTs_R{reg_number}.png'
             plt.savefig(path, dpi=300)
-        else:
-            plt.show()
+        plt.show()
         print(f'Plotted: UTs of Region {reg_number}')
     else:
         return ax
