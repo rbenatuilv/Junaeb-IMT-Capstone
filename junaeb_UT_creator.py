@@ -23,7 +23,7 @@ path_schools = os.path.join(parent_folder, schools_file)
 schools = pd.read_excel(path_schools)
 
 # Use this line to filter by region (testing purposes)
-schools = schools[schools['Region'] == 7].reset_index(drop=True)
+# schools = schools[schools['Region'] == 7].reset_index(drop=True)
 
 print('Done!')
 
@@ -88,7 +88,7 @@ for r in regs:
     pp.single_plot_uts(r, schools, save=True, folder='plots', 
                        cmap='tab20', legend=True, markersize=10, marker='x')
 
-pp.total_plot_uts(schools, (1, 1), save=True, folder='plots', 
+pp.total_plot_uts(schools, (4, 4), save=True, folder='plots', 
                   cmap='tab20', legend=True, markersize=1, marker='x')
 
 print('\nDone!\n')

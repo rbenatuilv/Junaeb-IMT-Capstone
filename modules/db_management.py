@@ -17,16 +17,20 @@ def join_duplicate_schools(data: pd.DataFrame, coords_labels: tuple[str] = ('X, 
     rbds = []
     x = []
     y = []
+    check = {}
 
     for i in tqdm(range(n), desc='Checking and joining duplicate schools'):
         where = -1
-        for j in range(len(x)):
-            if x[j] == data[x_label][i] and y[j] == data[y_label][i]:
-                where = j
+        
+        point = (data[x_label][i], data[y_label][i])
+        if point in check:
+            where = check[point]
+
         if where == -1:
             x.append(data[x_label][i])
             y.append(data[y_label][i])
             rbds.append([int(data[rbd_label][i])])
+            check[point] = len(x) - 1
         else:
             rbds[where].append(int(data[rbd_label][i]))
     

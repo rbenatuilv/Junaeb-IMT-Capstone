@@ -1,6 +1,7 @@
 import geopandas as gpd
 import os
 import pickle
+import platform
 
 
 # Params for plotting
@@ -18,7 +19,7 @@ except FileNotFoundError:
 
 path_regs_cont = os.path.join(os.getcwd(), 'modules', 'aux_data', 'regions_cont.pkl')
 try:
-    with open(path_regs, 'rb') as file:
+    with open(path_regs_cont, 'rb') as file:
         REGS_CONT = pickle.load(file)
 except FileNotFoundError:
     path_gpd2 = os.path.join(os.getcwd(), 'modules', 'aux_data', 'Regiones_cont')
@@ -39,8 +40,14 @@ RATIO_MANIP = 70
 DIAS_ESCOLARES = 180
 
 # Params for TSP solver
-COMP_COMMAND = ["g++", "modules/aux_scripts/TSP.cpp", "-o", "TSP"]
+cpp_file = os.path.join(os.getcwd(), 'modules', 'aux_scripts', 'TSP.cpp')
+if platform.system() == 'Darwin':
+    COMP_COMMAND = ["clang++", "-o", cpp_file, "TSP"]
+else:
+    COMP_COMMAND = ["g++", cpp_file, "-o", "TSP"]
+
 RUN_COMMAND = ["./TSP"]
+
 MAX_DIST = 200000  # Maxima distancia en metros
 MAX_N = 12  # Máxima cantidad de colegios
 VEHICLE_COST = 800000 * 10  # Costo fijo de tener una furgoneta (anual)
