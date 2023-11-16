@@ -3,3 +3,5 @@ colegios_filtrados/
 Comunas/
 comunas_fixed/
 *.exe
+__pycache__/
+.vscode/

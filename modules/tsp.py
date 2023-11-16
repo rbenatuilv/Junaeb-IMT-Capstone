@@ -5,10 +5,12 @@ import modules.parameters as p
 import modules.graph as g
 import modules.geo as geo
 from tqdm import tqdm
+from queue import PriorityQueue
 
 
 class TSPApprox:
-    def __init__(self, data: pd.DataFrame, coords_labels: tuple[str] = ('X, Y')):
+    def __init__(self, data: pd.DataFrame, coords_labels: tuple[str] = ('X, Y'),
+                 compile: bool = True):
         self.data = data
         self.x_label = coords_labels[0]
         self.y_label = coords_labels[1]
@@ -23,7 +25,8 @@ class TSPApprox:
         self.compile_command = p.COMP_COMMAND
         self.run_command = p.RUN_COMMAND
 
-        self.tsp_compile()
+        if compile:
+            self.tsp_compile()
     
     def tsp_compile(self):
         """
@@ -43,6 +46,39 @@ class TSPApprox:
                                           stdout = subprocess.PIPE)
         return int(self.run_process.stdout.decode())
     
+    def get_options_optimized(self, node: int) -> tuple[list[int], list[float]]:
+        n = len(self.data)
+        dist = PriorityQueue()
+        options = []
+        prob = []
+
+        point = (self.data[self.x_label][node], self.data[self.y_label][node])
+
+        for other in range(n):
+            if node == other:
+                continue
+            other_point = (self.data[self.x_label][other],
+                            self.data[self.y_label][other])
+            distance = g.distance(point, other_point)
+            if distance <= self.maxd:
+                dist.put((distance, other))
+
+        suma_prob = 0
+        for _ in range(min(2*self.maxn + 1, dist.qsize())):
+            distance, other = dist.get()
+            options.append(other)
+            prob.append(1 / distance)
+            suma_prob += 1 / distance
+
+        if len(prob) == 0:
+            return [], []
+
+        for j in range(len(prob)):
+            prob[j] = prob[j] / suma_prob
+
+        return options, prob
+
+
     def get_options(self, node: int) -> tuple[list[int], list[float]]:
         """
         Obtains the list of nearby nodes within the maximum distance.

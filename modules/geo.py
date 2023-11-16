@@ -77,7 +77,8 @@ def convert_to_meters(degrees: float) -> float:
 
 def nearest_points(coords: Union[tuple, Point], 
                    gdf: gpd.GeoDataFrame, 
-                   k: int, max_radius: int, margin=5) -> tuple[int, list]:
+                   k: int, max_radius: int, margin=5, 
+                   index: int = -1) -> tuple[int, list]:
     """
     NOTE: NOT TESTED YET
 
@@ -88,30 +89,35 @@ def nearest_points(coords: Union[tuple, Point],
     of points found and a list with the indices of the points.
     """
 
+    if isinstance(coords, tuple):
+        coords = Point(coords[::-1])
+
+    # Create a spatial index
+    sindex = gdf.sindex
+
     ran = range(k, k + margin)
     lon = 0
     r = max_radius
     u = max_radius
     l = 0
 
-    if isinstance(coords, tuple):
-        coords = Point(coords[::-1])
-
     memo = None
     while lon not in ran and u - l > 0:
         buff = coords.buffer(r)
-        data = gdf[gdf.intersects(buff)]
-        lon = len(data)
+        possible_matches_index = list(sindex.intersection(buff.bounds))
+        possible_matches = gdf.iloc[possible_matches_index]
+        precise_matches = possible_matches[possible_matches.intersects(buff)]
+        lon = len(precise_matches)
 
         if lon < k:
             l = r + 1
         else:
-            memo = data
+            memo = precise_matches
             u = r - 1
 
         r = (u + l) // 2
 
     if l > max_radius:
-        memo = data
-    memo = [row.Index for row in memo.itertuples()]
+        memo = precise_matches
+    memo = [row.Index for row in memo.itertuples() if row.Index != index]
     return lon, memo
