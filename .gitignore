@@ -2,6 +2,7 @@
 colegios_filtrados/
 Comunas/
 comunas_fixed/
+Data/Copia de PAE_2019.xlxs
 *.exe
 __pycache__/
 .vscode/
