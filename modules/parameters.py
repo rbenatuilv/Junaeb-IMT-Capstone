@@ -42,7 +42,7 @@ DIAS_ESCOLARES = 180
 # Params for TSP solver
 cpp_file = os.path.join(os.getcwd(), 'modules', 'aux_scripts', 'TSP.cpp')
 if platform.system() == 'Darwin':
-    COMP_COMMAND = ["clang++", "-o", cpp_file, "TSP"]
+    COMP_COMMAND = ["clang++", "-o", "TSP", cpp_file]
 else:
     COMP_COMMAND = ["g++", cpp_file, "-o", "TSP"]
 
