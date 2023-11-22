@@ -1,6 +1,7 @@
 *.pkl
 colegios_filtrados/
 Comunas/
+Data/Copia de PAE_2019.xlsx
 comunas_fixed/
 *.exe
 __pycache__/
