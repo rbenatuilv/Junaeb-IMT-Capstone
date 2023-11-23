@@ -84,6 +84,9 @@ print('PLOTTING...\n')
 
 regs = schools['Region'].unique()
 
+if not os.path.exists('plots'):
+    os.makedirs('plots')
+
 for r in regs:
     pp.single_plot_uts(r, schools, save=True, folder='plots', 
                        cmap='tab20', legend=True, markersize=10, marker='x')
