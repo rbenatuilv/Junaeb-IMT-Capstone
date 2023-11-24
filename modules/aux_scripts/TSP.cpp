@@ -1,4 +1,9 @@
-#include <bits/stdc++.h>
+#include <iostream>
+#include <cmath>
+#include <algorithm>
+#include <cstring> 
+
+
 using namespace std;
 typedef long long ll;
 const int MAXN = 12;
