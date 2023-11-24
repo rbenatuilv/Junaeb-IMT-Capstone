@@ -5,7 +5,7 @@ import modules.parameters as p
 import modules.graph as g
 import modules.geo as geo
 from tqdm import tqdm
-from queue import PriorityQueue
+import heapq
 
 
 class TSPApprox:
@@ -14,6 +14,9 @@ class TSPApprox:
         self.data = data
         self.x_label = coords_labels[0]
         self.y_label = coords_labels[1]
+        self.points = [(data[self.x_label][i], data[self.y_label][i]) 
+                       for i in range(len(data))]
+        self.adj_list = g.get_adj_list(self.points)
 
         self.maxd = geo.convert_to_degrees(p.MAX_DIST)
         self.maxn = p.MAX_N
@@ -46,42 +49,46 @@ class TSPApprox:
                                           stdout = subprocess.PIPE)
         return int(self.run_process.stdout.decode())
     
-    def get_options_optimized(self, node: int) -> tuple[list[int], list[float]]:
-        n = len(self.data)
-        dist = PriorityQueue()
-        options = []
-        prob = []
+    def get_options_dijkstra(self, node: int, mode: str = 'manhattan') -> tuple[list[int], list[float]]:
+        """
+        Obtains the list of nearby nodes within the maximum distance, using
+        Dijkstra's algorithm.
+        """
+       
+        visited = dict()
+        heap = [(0, node)]
 
-        point = (self.data[self.x_label][node], self.data[self.y_label][node])
-
-        for other in range(n):
-            if node == other:
+        while heap:
+            dist, next = heapq.heappop(heap)
+            if next in visited:
                 continue
-            other_point = (self.data[self.x_label][other],
-                            self.data[self.y_label][other])
-            distance = g.distance(point, other_point)
-            if distance <= self.maxd:
-                dist.put((distance, other))
+            visited[next] = dist
 
-        suma_prob = 0
-        for _ in range(min(2*self.maxn + 1, dist.qsize())):
-            distance, other = dist.get()
-            options.append(other)
-            prob.append(1 / distance)
-            suma_prob += 1 / distance
+            for neigh in self.adj_list[next]:
+                if neigh not in visited:
+                    d = g.distance(self.points[node], self.points[neigh], mode=mode)
+                    if d <= self.maxd:
+                        heapq.heappush(heap, (d, neigh))
 
-        if len(prob) == 0:
-            return [], []
+            if len(visited) > 2 * self.maxn + 1:
+                break
 
-        for j in range(len(prob)):
-            prob[j] = prob[j] / suma_prob
+        visited.pop(node)
+        visited = list(visited.items())
+        visited.sort(key=lambda x: x[1])
+        visited = visited[:2 * self.maxn + 1]
 
-        return options, prob
+        tot_prob = sum([1 / x[1] for x in visited])
+        probs = [(1 / x[1]) / tot_prob for x in visited]
+        visited = [x[0] for x in visited]
+
+        return visited, probs
 
 
-    def get_options(self, node: int) -> tuple[list[int], list[float]]:
+    def get_options(self, node: int, mode: str = 'manhattan') -> tuple[list[int], list[float]]:
         """
         Obtains the list of nearby nodes within the maximum distance.
+        Naive version.
         """
         n = len(self.data)
         dist = []
@@ -95,7 +102,7 @@ class TSPApprox:
                 continue
             other_point = (self.data[self.x_label][other],
                             self.data[self.y_label][other])
-            dist.append([g.distance(point, other_point), other])
+            dist.append([g.distance(point, other_point, mode=mode), other])
         
         dist.sort(key=lambda x: x[0])
 
@@ -154,7 +161,7 @@ class TSPApprox:
 
         for node in tqdm(range(n), desc='Calculating TSP approximations'):
 
-            options, prob = self.get_options(node)
+            options, prob = self.get_options_djikstra(node)
 
             if not options:
                 cant[node] = 1

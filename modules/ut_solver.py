@@ -1,6 +1,7 @@
 import modules.graph as g
 import modules.parameters as p
 import pandas as pd
+import sys
 
 
 class UTSolver:
@@ -29,6 +30,8 @@ class UTSolver:
 
         self.A = p.A
         self.B = p.B
+
+        sys.setrecursionlimit(20000)
 
         self.initialize_auxs()
 
