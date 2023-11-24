@@ -61,7 +61,8 @@ def plot_regions(reg_numbers: list[int] = None,
 
 def single_plot_uts(reg_number, schools, crs: str = 'EPSG:4326', 
                     ax: plt.Axes = None, title: str = None, 
-                    save: bool = False, folder: str = None, **args):
+                    save: bool = False, folder: str = None, test: bool = False, 
+                    **args):
     """
     Plot the UTs of a single region.
     """
@@ -82,7 +83,10 @@ def single_plot_uts(reg_number, schools, crs: str = 'EPSG:4326',
 
     if plot:
         if save:
-            path = f'{folder}/UTs_R{reg_number}.png'
+            if test:
+                path = f'{folder}/UTs_R{reg_number}_test.png'
+            else:
+                path = f'{folder}/UTs_R{reg_number}.png'
             plt.savefig(path, dpi=300)
         else:
             plt.show()
@@ -93,7 +97,8 @@ def single_plot_uts(reg_number, schools, crs: str = 'EPSG:4326',
 
 def total_plot_uts(schools, subplots: tuple[int], 
                    crs: str = 'EPSG:4326', 
-                   save: bool = False, folder: str = None, **args):
+                   save: bool = False, folder: str = None, 
+                   test: bool = False, **args):
     """
     Plot the UTs of all regions.
     """
@@ -107,7 +112,10 @@ def total_plot_uts(schools, subplots: tuple[int],
 
     # Save the plot
     if save:
-        path = f'{folder}/UTs.png'
+        if test:
+            path = f'{folder}/UTs_test.png'
+        else:
+            path = f'{folder}/UTs.png'
         plt.savefig(path, dpi=300)
     else:
         plt.show()
