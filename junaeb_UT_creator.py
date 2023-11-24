@@ -127,10 +127,10 @@ if not os.path.exists('plots'):
 
 for r in regs:
     pp.single_plot_uts(r, schools, save=True, folder='plots', test=TEST,
-                       cmap='tab20', legend=True, markersize=10, marker='x')
+                       cmap='tab20', legend=True, markersize=20, marker='x')
 
 pp.total_plot_uts(schools, (4, 4), save=True, folder='plots', test=TEST,
-                  cmap='tab20', legend=True, markersize=1, marker='x')
+                  cmap='tab20', legend=True, markersize=2, marker='x')
 
 print('\nDone!\n')
 

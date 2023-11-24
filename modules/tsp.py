@@ -49,10 +49,10 @@ class TSPApprox:
                                           stdout = subprocess.PIPE)
         return int(self.run_process.stdout.decode())
     
-    def get_options_djikstra(self, node: int, mode: str = 'manhattan') -> tuple[list[int], list[float]]:
+    def get_options_dijkstra(self, node: int, mode: str = 'manhattan') -> tuple[list[int], list[float]]:
         """
         Obtains the list of nearby nodes within the maximum distance, using
-        Djikstra's algorithm.
+        Dijkstra's algorithm.
         """
        
         visited = dict()

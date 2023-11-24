@@ -51,8 +51,8 @@ def get_closest(points, adj_list, node, k, mode='manhattan'):
     return visited, probs
 
 
-def get_closest_djikstra(points, adj_list, node, k, mode='manhattan'):
-    """Returns the k closest nodes to the given node using Djikstra's algorithm"""
+def get_closest_dijkstra(points, adj_list, node, k, mode='manhattan'):
+    """Returns the k closest nodes to the given node using Dijkstra's algorithm"""
 
     visited = dict()
     heap = [(0, node)]
