@@ -4,6 +4,8 @@ import signal
 
 
 TEST = False  # Set to True to test the code with a single region (7)
+SAVE_LOGISTICS = True  # Set to True to save the logistics of each school
+USE_LOGISTICS = False  # Set to True to use the logistics of each school
 
 #################### Data parameters ######################
 
@@ -11,7 +13,7 @@ parent_folder = 'Data'
 rations_folder = 'Raciones'
 
 schools_file = 'Colegios(Continental)2020.xlsx'
-rations_file = 'Raciones_totales.xlsx'
+rations_file = 'Raciones_totales_2019.xlsx'
 
 coords_labels = ['Longitud', 'Latitud']
 
@@ -73,9 +75,18 @@ dbm.add_food_rations_and_costs(data, rations)
 
 #################### TSP solver #########################
 
-print('\nSOLVING TSPs...\n')
-tsp_solver = tsp.TSPApprox(data, coords_labels=coords_labels)
-data['Logistica'] = tsp_solver.solve()
+if not USE_LOGISTICS:
+    print('\nSOLVING TSPs...\n')
+    tsp_solver = tsp.TSPApprox(data, coords_labels=coords_labels)
+    data['Logistica'] = tsp_solver.solve()
+
+    if SAVE_LOGISTICS:
+        dbm.save_data(data[['Logistica']], 'logistics.xslx')
+
+else:
+    print('\nLOADING LOGISTICS...', end='')
+    data['Logistica'] = pd.read_excel('logistics.xslx')['Logistica']
+    print('Done!\n')
 
 ###################### Profit ###########################
 
@@ -120,6 +131,17 @@ print('Done!\n')
 
 print('PLOTTING...\n')
 
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+import numpy as np
+
+colors1 = plt.cm.Dark2(np.linspace(0,1))
+colors2 = plt.cm.tab10(np.linspace(0,1))
+colors3 = plt.cm.Set1(np.linspace(0,1))
+
+colors = np.vstack((colors1, colors2, colors3, colors1, colors2, colors3))
+mymap = mcolors.LinearSegmentedColormap.from_list('my_colormap', colors)
+
 regs = schools['Region'].unique()
 
 if not os.path.exists('plots'):
@@ -127,10 +149,10 @@ if not os.path.exists('plots'):
 
 for r in regs:
     pp.single_plot_uts(r, schools, save=True, folder='plots', test=TEST,
-                       cmap='tab20', legend=True, markersize=20, marker='x')
+                       cmap=mymap, legend=True, markersize=20, marker='x')
 
 pp.total_plot_uts(schools, (4, 4), save=True, folder='plots', test=TEST,
-                  cmap='tab20', legend=True, markersize=2, marker='x')
+                  cmap=mymap, legend=True, markersize=2, marker='x')
 
 print('\nDone!\n')
 
