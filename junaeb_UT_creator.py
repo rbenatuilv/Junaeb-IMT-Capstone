@@ -1,14 +1,6 @@
-import modules.tsp as tsp
-import modules.ut_solver as ut
-import modules.db_management as dbm
-import modules.pretty_plot as pp
-import modules.parameters as p
 import modules.requirements as req
-
-import pandas as pd
 import os
 import signal
-from time import sleep
 
 
 TEST = False  # Set to True to test the code with a single region (7)
@@ -23,7 +15,6 @@ rations_file = 'Raciones_totales.xlsx'
 
 coords_labels = ['Longitud', 'Latitud']
 
-
 #################### Interrupt handler ####################
 
 def handle_interrupt(signal, frame):
@@ -34,7 +25,7 @@ signal.signal(signal.SIGINT, handle_interrupt)
 
 #################### Check requirements ##################
 
-print('\n' + 'JUNAEB UT CREATOR'.center(100, '-') + '\n')
+print('\n' + 'JUNAEB UT CREATOR'.center(80, '-') + '\n')
 
 print('CHECKING REQUIREMENTS...\n')
 
@@ -45,6 +36,15 @@ req.check_data_requirements(parent_folder=parent_folder,
                             rations_file=rations_file)
 
 print('Done!\n')
+
+
+import modules.tsp as tsp
+import modules.ut_solver as ut
+import modules.db_management as dbm
+import modules.pretty_plot as pp
+import modules.parameters as p
+import pandas as pd
+
 
 ##################### Load data #########################
 
