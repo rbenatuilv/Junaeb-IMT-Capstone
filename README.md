@@ -26,8 +26,9 @@ Para manejar los datos, se realizan los siguientes procesos en orden:
 1. ```get_coords_osm()``` y ```get_coords_google()```: Obtener las coordenadas de colegios que <añadir restricción> a partir de la dirección indicada en el dataset ```Colegios2020.xlsx```. Ubicada en ```modules/geo.py```
 2. ```join_duplicate_schools()```: Hace un merge entre los colegios que están en la misma ubicación, considerándolos uno solo. Ahora cada fila tiene una lista de RBD's. Ubicada en ```modules/db_management.py```
 3. ```nearest_points()```: Obtener una los ````k```` (28 en nuestro caso) vecinos más cercanos, dado un radio máximo dado como input. Para esto, se usa ```convert_to_degrees``` y ```convert_to_meters```. Ubicada en ```modules/geo.py```
-4. **Filtración de columnas y borrar nuls**
-5. **Creo que deberíamos colocar lo que se hizo con el dataset 2019 en vez de los anteriores**
+4. ```get_closest_dijkstra()```: Obtener una los ````k```` (**30 en nuestro caso**) vecinos más cercanos. Ubicada en ```modules/find_neighs.py```. Duplicada
+5. **Filtración de columnas y borrar nuls**
+6. **Creo que deberíamos colocar lo que se hizo con el dataset 2019 en vez de los anteriores**
 
 ### Cálculo de costos de Escala
 **Faltante**
@@ -46,15 +47,21 @@ El resultado del cálculo de cada TSP muestreado, hecho en ```tsp_sample()```, e
 ### Asignación de Unidades Territoriales
 La asignación de unidades territoriales resuelve con la clase en ```UTSolver``` en ```modules/ut_solver.py```, usando la estimación de costos logísticos
 
-Primeramente, se calcula un Minimum Spanning Tree, con la función ```MST()```, de manera que cada corte en el grafo genere dos árboles, ubicada en ```modules/graph.py```. 
+Primeramente, se calcula un Minimum Spanning Tree, con la función ```MST()```, que retorna una lista de aristas. Esto se hace de manera que cada corte en el grafo genere dos árboles, ubicada en ```modules/graph.py```. 
 
 Posteriormente, se utiliza una estrategia divide and conquer, iniciando todo Chile con una unidad territorial, para después ir dividiéndolo hasta que cada subárbol (UT) generado cumpla que tenga una cantidad de raciones menor a ```p.MAXR```. Además, existe la restricción de que cada subárbol generado, debe tener una cantidad de raciones mayor a ```p.MINR```.
 
-La manera en la que se encuentra la mejor arista de corte es buscando extensivamente la mejor arista que cumpla con ```algo como self.A*ratio_val + self.B*ratio_compacity```
+La manera en la que se encuentra la mejor arista de corte es buscando extensivamente la mejor arista que cumpla con ```p.A```*```ratio_val``` + ```p.B```*```ratio_compacity```, donde ````ratio_compacity```` es la compacidad y  ```ratio_val``` indica cuántas veces más grande es la UT más grande creada por el corte versus la más pequeña (en términos de ganancia esperada). Además, ```p.A``` es la constante de regularización de la razón de profit y ```p.B``` es la constante de regularización de la compacidad.
+
+El cálculo de la compacidad se realiza obteniendo la suma de dos ratios. El primero, se calcula mediante la razón entre el mayor y menor lado del rectángulo envolvente del punto . El segundo, se calcula mediante el menor rectángulo envolvente de la UT creada y sus vecinos.
 
 
 ### Plot de resultados
-
+Cuando ya se tienen los resultados de las UT's asignadas, se procede a visualizar los resultados, esto con ayuda de la librería ```matplotlib.pyplot```. Lo anterior, con funciones que se encuentran en ```pretty_plot.py```, que las guarda en el directorio ```plots```.
+En primer lugar, con la función ```single_plot_uts``` se guarda la visualización de cada región por separado, en un archivo llamado ```UTs_R{n_region}.png```. El resultado, tiene el formato de a continuación:
+![Imagen de referencia de la Región del Maule](./plots/UTs_R7.png)
+Por último, con la función ```total_plot_uts``` se guarda la visualización de todas las regiones juntas, en subplots separados en un archivo llamado ```UTs.png```. El resultado, tiene el formato de a continuación:
+![Referencia de UT's creadas](./plots/UTs.png)
 
 ### Cosas no agregadas
 1. add_food_rations_and_costs() en db_management.py
@@ -64,21 +71,18 @@ La manera en la que se encuentra la mejor arista de corte es buscando extensivam
 5. get_closest() en find_neighs.py
 6. get_closest_dijkstra() en find_neighs.py
 7. get_closest_intersect() en find_neighs.py
-8. find() en graph.py
-9. union() en graph.py
-10. get_adj_list() en graph.py
-11. get_edges() en graph.py
-12. distance() en graph.py
-13. plot_graph() en graph.py
-14. get_subtree_metrics() en graph.py
-15. find_best_split() en graph.py
-16. assign_ut_to_nodes() en graph.py
-17. Parameters.py
-18. plot_region() en pretty_plot.py
-19. plot_regions() en pretty_plot.py
-20. single_plot_uts() en pretty_plot.py
-21. total_plot_uts() en pretty_plot.py
-22. class UTSolver en ut_solver.py
+8. nearest_points() en geo.py
+9. find() en graph.py
+10. union() en graph.py
+11. get_adj_list() en graph.py
+12. get_edges() en graph.py
+13. distance() en graph.py
+14. plot_graph() en graph.py
+15. get_subtree_metrics() en graph.py
+16. find_best_split() en graph.py (Duplicado de UT solver)
+17. assign_ut_to_nodes() en graph.py
+18. Parameters.py
+19. class UTSolver en ut_solver.py
 
 ### Cosas que no se usan
 1. p.MAXSZ
