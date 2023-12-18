@@ -41,18 +41,15 @@ def join_duplicate_schools(data: pd.DataFrame, coords_labels: tuple[str] = ('X, 
 def add_food_rations_and_costs(data: pd.DataFrame, rations: pd.DataFrame, 
                      rbd_label: str = 'RBD'):
     """
-    Add the food rations and costs to the duplicates-free dataset. Modifies 
-    the dataset in place, adding the columns 'Manipuladora', 'Beneficio', 
-    'Alimentos' and 'Raciones'.
+    Add the food rations and operating costs to the duplicates-free dataset. Modifies 
+    the dataset in place, adding the columns 'Manipuladora' and 'Raciones'.
     """
 
     n = len(data)
 
     indice = {rations[rbd_label][i]: i for i in range(len(rations))}
 
-    beneficio = [0 for _ in range(n)]
     manipuladoras = [0 for _ in range(n)]
-    costo = [0 for _ in range(n)]
     raciones = [0 for _ in range(n)]
 
     for i in tqdm(range(n), desc='Calculating food rations and costs'):
@@ -64,22 +61,17 @@ def add_food_rations_and_costs(data: pd.DataFrame, rations: pd.DataFrame,
             raciones[i] += int(rations['O'][ix])
             raciones[i] += int(rations['C'][ix])
 
-        beneficio[i] = p.BENEF_RACION * raciones[i]
-        costo[i] = p.COST_RACION * raciones[i]
-        raciones[i] = raciones[i] // p.DIAS_ESCOLARES
-        manipuladoras[i] = p.SUELDO_MANIP * (((raciones[i] // 2) // p.DIAS_ESCOLARES + 
+        manipuladoras[i] = 10 * p.SUELDO_MANIP * (((raciones[i] // 2) // p.DIAS_ESCOLARES + 
                                               (p.RATIO_MANIP - 1)) // p.RATIO_MANIP)
 
     data['Manipuladora'] = manipuladoras
-    data['Beneficio'] = beneficio
-    data['Alimentos'] = costo
     data['Raciones'] = raciones
 
 
-def add_profit(data: pd.DataFrame, profit_label: str = 'Profit', logist_label: str = 'Logistica'):
+def add_costs(data: pd.DataFrame, costs_label: str = 'Costos fijos', logist_label: str = 'Logistica'):
     """
-    Add the profit column to the dataset. Modifies the dataset in place, adding the column
-    'Profit'.
+    Add the costs column to the dataset. Modifies the dataset in place, adding the column
+    'Costos fijos'.
     """
 
     try:
@@ -90,12 +82,12 @@ def add_profit(data: pd.DataFrame, profit_label: str = 'Profit', logist_label: s
 
     n = len(data)
 
-    profit = [0 for _ in range(n)]
+    costs = [0 for _ in range(n)]
 
     for i in range(n):
-        profit[i] = data['Beneficio'][i] - data['Logistica'][i] - data['Manipuladora'][i] - data['Alimentos'][i]
+        costs[i] = data['Logistica'][i] + data['Manipuladora'][i]
 
-    data[profit_label] = profit
+    data[costs_label] = costs
 
 
 def ut_assignation(data: pd.DataFrame, schools: pd.DataFrame):

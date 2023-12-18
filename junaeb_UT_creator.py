@@ -5,7 +5,7 @@ import signal
 
 TEST = False  # Set to True to test the code with a single region (7)
 SAVE_LOGISTICS = True  # Set to True to save the logistics of each school
-USE_LOGISTICS = False  # Set to True to use the logistics of each school
+USE_LOGISTICS = True  # Set to True to use the logistics of each school
 
 #################### Data parameters ######################
 
@@ -81,18 +81,18 @@ if not USE_LOGISTICS:
     data['Logistica'] = tsp_solver.solve()
 
     if SAVE_LOGISTICS:
-        dbm.save_data(data[['Logistica']], 'logistics.xslx')
+        dbm.save_data(data[['Logistica']], 'logistics.xlsx')
 
 else:
     print('\nLOADING LOGISTICS...', end='')
-    data['Logistica'] = pd.read_excel('logistics.xslx')['Logistica']
+    data['Logistica'] = pd.read_excel('logistics.xlsx')['Logistica']
     print('Done!\n')
 
-###################### Profit ###########################
+###################### Costs ###########################
 
-print('\nADDING PROFITS...', end='')
+print('\nADDING COSTS...', end='')
 
-dbm.add_profit(data)
+dbm.add_costs(data)
 
 print('Done!\n')
 

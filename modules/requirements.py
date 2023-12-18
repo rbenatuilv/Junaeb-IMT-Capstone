@@ -1,6 +1,3 @@
-import signal
-
-
 
 def check_import_requirements():
     """

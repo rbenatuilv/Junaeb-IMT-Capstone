@@ -9,13 +9,13 @@ class UTSolver:
     Class to solve the UT problem for a given dataset, using divide-and-conquer strategy.
     """
 
-    def __init__(self, data: pd.DataFrame, min_racs, max_racs, profit_name: str = 'Profit', 
+    def __init__(self, data: pd.DataFrame, min_racs, max_racs, costs_name: str = 'Costos fijos', 
                  coords_labels: tuple[str] = ('X', 'Y'), racs_name: str = 'Raciones'):
         
         n = len(data)
         self.n = n
 
-        self.profit = [data[profit_name][i] for i in range(n)]
+        self.costs = [data[costs_name][i] for i in range(n)]
         self.raciones = [data[racs_name][i] for i in range(n)]
 
         x_lab = coords_labels[0]
@@ -37,7 +37,7 @@ class UTSolver:
 
     def initialize_auxs(self):
         self.UT = [-1 for _ in range(self.n)]
-        self.subv = [0 for _ in range(self.n)]
+        self.subc = [0 for _ in range(self.n)]
         self.subr = [0 for _ in range(self.n)]
         self.maxx = [0 for _ in range(self.n)]
         self.minx = [0 for _ in range(self.n)]
@@ -47,10 +47,13 @@ class UTSolver:
         self.uminx = [0 for _ in range(self.n)]
         self.umaxy = [0 for _ in range(self.n)]
         self.uminy = [0 for _ in range(self.n)]
-        self.totalv = 0
+        self.totalc = 0
         self.totalr = 0
         self.t = 0
         self.res = [-1, -1, -1]
+
+    def profit(self, racs, costs):
+        return p.PROFIT_PCT * (p.SCALE_COEF_A * racs + p.SCALE_COEF_B) * racs - costs
 
     def get_compacity(self, v, p):
         """
@@ -87,13 +90,13 @@ class UTSolver:
 
         return ratio1 + ratio2
     
-    def get_split_val(self, v, total):
+    def get_split_val(self, v, totalr, totalc):
         """
         Get the split value of a given subtree, using the ratio of values as metric.
         """
 
-        v1 = self.subv[v]
-        v2 = total - self.subv[v]
+        v1 = self.profit(self.subr[v], self.subc[v])
+        v2 = self.profit(totalr - self.subr[v], totalc - self.subc[v])
         ratio = 0
         if min(v1, v2) != 0:
             ratio = max(v1, v2)/min(v1, v2) - 1
@@ -107,7 +110,7 @@ class UTSolver:
         of the subtree without the current node.
         """
         
-        self.subv[v] = self.profit[v]
+        self.subc[v] = self.costs[v]
         self.subr[v] = self.raciones[v]
         self.maxx[v] = self.x[v]
         self.minx[v] = self.x[v]
@@ -134,7 +137,7 @@ class UTSolver:
                 continue
             self.get_subtree_metrics(u, v)
             
-            self.subv[v] += self.subv[u]
+            self.subc[v] += self.subc[u]
             self.subr[v] += self.subr[u]
             self.maxx[v] = max(self.maxx[v], self.maxx[u])
             self.minx[v] = min(self.minx[v], self.minx[u])
@@ -153,7 +156,7 @@ class UTSolver:
         for u in self.edges[v]:
             if u == p:
                 continue
-            ratio_val = self.get_split_val(u, self.totalv)
+            ratio_val = self.get_split_val(u, self.totalr, self.totalc)
             ratio_compacity = self.get_compacity(u, v)
             if self.A*ratio_val + self.B*ratio_compacity < self.res[0] and (self.totalr - self.subr[u]) >= self.min_r:
                 self.res = [self.A*ratio_val + self.B*ratio_compacity, v, u]
@@ -177,7 +180,7 @@ class UTSolver:
 
         self.get_subtree_metrics(root, -1)
     
-        self.totalv = self.subv[root]
+        self.totalc = self.subc[root]
         self.totalr = self.subr[root]
 
         if self.totalr <= self.max_r:
@@ -186,7 +189,7 @@ class UTSolver:
             self.t += 1
             return
 
-        self.res = [3*self.totalv, -1, -1]
+        self.res = [1e18, -1, -1]
         self.find_best_split(root, -1)
 
         root1 = self.res[1]

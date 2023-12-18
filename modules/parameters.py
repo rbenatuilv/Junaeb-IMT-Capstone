@@ -7,8 +7,8 @@ import platform
 # Params for UT solver
 MAXSZ = 250
 MINSZ = 50
-MAXR = 60000
-MINR = 15000
+MAXR = 600000 * 180
+MINR = 150000 * 180 
 A = 1
 B = 0
 
@@ -19,11 +19,15 @@ SUELDO_MANIP = 358000
 RATIO_MANIP = 70
 DIAS_ESCOLARES = 180
 
+SCALE_COEF_A = -1.04e-6
+SCALE_COEF_B = 928.49
+PROFIT_PCT = 0.1
+
 # Params for TSP solver
 MAX_DIST = 200000  # Maxima distancia en metros
 MAX_N = 12  # Máxima cantidad de colegios
 VEHICLE_COST = 800000 * 10  # Costo fijo de tener una furgoneta (anual)
-MAX_SAMPLE = 10  # Número de ejemplos por cada colegio
+MAX_SAMPLE = 1  # Número de ejemplos por cada colegio
 
 metro_litro = 10000
 precio_litro = 1300
