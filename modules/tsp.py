@@ -161,7 +161,7 @@ class TSPApprox:
 
         for node in tqdm(range(n), desc='Calculating TSP approximations'):
 
-            options, prob = self.get_options_djikstra(node)
+            options, prob = self.get_options_dijkstra(node)
 
             if not options:
                 cant[node] = 1
