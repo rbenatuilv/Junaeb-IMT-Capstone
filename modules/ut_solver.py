@@ -94,6 +94,9 @@ class UTSolver:
 
         v1 = self.subv[v]
         v2 = total - self.subv[v]
+
+        return abs(v1- v2)
+
         ratio = 0
         if min(v1, v2) != 0:
             ratio = max(v1, v2)/min(v1, v2) - 1
@@ -188,6 +191,12 @@ class UTSolver:
 
         self.res = [3*self.totalv, -1, -1]
         self.find_best_split(root, -1)
+
+        if self.res[1] == -1 or self.res[2] == -1:
+            self.assign_ut_to_nodes(root, -1)
+            print(f'UTs assigned: {self.t}', end='\r')
+            self.t += 1
+            return
 
         root1 = self.res[1]
         root2 = self.res[2]

@@ -127,6 +127,29 @@ def ut_assignation(data: pd.DataFrame, schools: pd.DataFrame):
     return schools.merge(new_data, on='RBD')
 
 
+def get_ut_profits(data):
+    """
+    Returns a list of the profits for each UT.
+    """
+
+    n = len(data)
+    k = max(data['UT'][i] for i in range(n)) + 1
+
+    UT = [data['UT'][i] for i in range(n)]
+
+    profit = [0 for _ in range(k)]
+    raciones = [0 for _ in range(k)]
+
+    for i in range(n):
+        profit[UT[i]] += data['Profit'][i]
+        raciones[UT[i]] += data['Raciones'][i]
+
+
+    new_data = {'UT': [i for i in range(k)], 'Profit': profit, 'Raciones': raciones}
+
+    return pd.DataFrame(new_data)
+
+
 def save_data(data: pd.DataFrame, path: str):
     """
     Save the dataset to an excel file.
