@@ -85,8 +85,16 @@ if not USE_LOGISTICS:
 
 else:
     print('\nLOADING LOGISTICS...', end='')
-    data['Logistica'] = pd.read_excel('logistics.xlsx')['Logistica']
-    print('Done!\n')
+    try:
+        data['Logistica'] = pd.read_excel('logistics.xlsx')['Logistica']
+        print('Done!\n')
+    except FileNotFoundError:
+        print('Logistics file not found. Solving TSPs...\n')
+        tsp_solver = tsp.TSPApprox(data, coords_labels=coords_labels)
+        data['Logistica'] = tsp_solver.solve()
+
+        if SAVE_LOGISTICS:
+            dbm.save_data(data[['Logistica']], 'logistics.xlsx')
 
 ###################### Profit ###########################
 
