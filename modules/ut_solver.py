@@ -97,12 +97,6 @@ class UTSolver:
 
         return abs(v1- v2)
 
-        ratio = 0
-        if min(v1, v2) != 0:
-            ratio = max(v1, v2)/min(v1, v2) - 1
-
-        return ratio
-
     def get_subtree_metrics(self, v, p):
         """
         Get the metrics of a given subtree, such as the total value, the total number of rations,
@@ -213,4 +207,3 @@ class UTSolver:
         for i in range(self.n):
             if self.UT[i] == -1:
                 self.rec_solve(i)
-
