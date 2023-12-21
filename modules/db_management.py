@@ -1,6 +1,8 @@
 import pandas as pd
 import modules.parameters as p
 from tqdm import tqdm
+import modules.graph as graph
+import modules.geo as geo
 
 
 def join_duplicate_schools(data: pd.DataFrame, coords_labels: tuple[str] = ('X, Y'), 
@@ -127,15 +129,15 @@ def ut_assignation(data: pd.DataFrame, schools: pd.DataFrame):
     return schools.merge(new_data, on='RBD')
 
 
-def get_ut_profits(data):
+def get_ut_profits(data, ut_label: str = 'UT'):
     """
     Returns a list of the profits for each UT.
     """
 
     n = len(data)
-    k = max(data['UT'][i] for i in range(n)) + 1
+    k = max(data[ut_label][i] for i in range(n)) + 1
 
-    UT = [data['UT'][i] for i in range(n)]
+    UT = [data[ut_label][i] for i in range(n)]
 
     profit = [0 for _ in range(k)]
     raciones = [0 for _ in range(k)]
@@ -145,9 +147,57 @@ def get_ut_profits(data):
         raciones[UT[i]] += data['Raciones'][i]
 
 
-    new_data = {'UT': [i for i in range(k)], 'Profit': profit, 'Raciones': raciones}
+    new_data = {ut_label: [i for i in range(k)], 'Profit': profit, 'Raciones': raciones}
 
     return pd.DataFrame(new_data)
+
+
+def obtain_stats(df_schools: pd.DataFrame, df_ut_profits: pd.DataFrame,
+                 coords_labels: tuple[str] = ('X', 'Y'), ut_label: str = 'UT'):
+    """
+    Calculates the average, maximum and minimum rate of profit between UTs.
+    """
+    
+    x_label = coords_labels[0]
+    y_label = coords_labels[1]
+
+    uts = df_ut_profits[ut_label].unique()
+    UT = [df_schools[ut_label][i] for i in range(len(df_schools))]
+
+    ut_edges = [[] for _ in range(len(uts))]
+
+    points = [(df_schools[x_label][i], df_schools[y_label][i]) 
+              for i in range(len(df_schools))]
+
+    schools_edges = graph.get_adj_list(points)
+
+    for i in range(len(df_schools)):
+        for j in schools_edges[i]:
+
+            dist = geo.convert_to_meters(graph.distance(points[i], points[j]))
+
+            if UT[j] not in ut_edges[UT[i]] and UT[i] != UT[j] and dist < 150000:
+                ut_edges[UT[i]].append(UT[j])
+
+    sumdiff = 0
+    maxdiff = 0
+    mindiff = 100000
+    contar = 0
+
+    profit = [df_ut_profits['Profit'][i] for i in range(len(df_ut_profits))]
+
+    for i in range(len(ut_edges)):
+        for j in ut_edges[i]:
+            sumdiff += max(profit[i], profit[j]) / min(profit[i], profit[j])
+            contar += 1
+            maxdiff = max(maxdiff, max(profit[i], profit[j]) / min(profit[i], profit[j]))
+            mindiff = min(mindiff, max(profit[i], profit[j]) / min(profit[i], profit[j]))
+
+    print(f'En promedio, el beneficio económico entre UTs vecinas presenta una razón de {round(sumdiff / contar, 3)}')
+    print(f'La razón más alta que se presenta entre UTs vecinas es {round(maxdiff, 3)}')
+    print(f'La menor razón que se presenta entre UTs vecinas es {round(mindiff, 3)}')
+
+    return sumdiff / contar, maxdiff, mindiff
 
 
 def save_data(data: pd.DataFrame, path: str):

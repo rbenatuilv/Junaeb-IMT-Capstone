@@ -94,7 +94,7 @@ else:
         data['Logistica'] = tsp_solver.solve()
 
         if SAVE_LOGISTICS:
-            dbm.save_data(data[['Logistica']], 'logistics.xlsx')
+            dbm.save_data(data[['RBD', 'Logistica']], 'logistics.xlsx')
 
 ###################### Profit ###########################
 
