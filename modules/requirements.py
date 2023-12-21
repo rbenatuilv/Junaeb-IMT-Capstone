@@ -12,6 +12,7 @@ def check_import_requirements():
         import numpy as np
         import matplotlib.pyplot as plt
         import tqdm
+        import statsmodels
 
     except ImportError:
         print('Some modules are missing. Please run the following command:')
