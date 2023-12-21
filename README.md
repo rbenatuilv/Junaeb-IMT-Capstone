@@ -2,6 +2,11 @@
 ## Junaeb-IMT-Capstone
 Datos e implementaciones para resolver el problema de asignación de UTs para la Junaeb
 
+### Ejecutable
+El archivo que se debe ejecutar para hacer funcionar el modelo creado es ```junaeb_UT_creator.py```, ubicado en el directorio principal. Para estos efectos, se ejecutará en la consola ```python junaeb_UT_creator.py```. Ahora, se pasará a detallar cada uno de los pasos del ejecutable.
+
+Es importante notar que el paso que demora más tiempo es el TSP solver, o sea, la estimación de los costos logísticos. Para aquello, se debe setear los booleanos ```SAVE_LOGISTICS``` y ```USE_LOGISTICS```, de forma de optimizar el tiempo de ejecución del archivo. La primera variable, indica si se va a guardar los costos logísticos calculados en esa ejecución del código, de forma de poder usarlos después. La segunda variable, indica si se usarán los costos logísticos ya prevgiamente calculados, o se calcularán nuevamente. La idea de estas variables es que en la primera ejecución se calculen los costos y se guarden, para en las próximas ocasiones sólo usar los ya guardados.
+
 ### Requerimientos
 Para asegurar el correcto funcionamiento del algoritmo, hay que tener instalado ````c++```` y ````python>=3.6````. Para el primero, hay que además tener disponible un compilador.
 
@@ -33,7 +38,7 @@ Para manejar los datos, se realizan los siguientes procesos en orden:
 4. ```add_food_rations_and_costs```: Añade al dataset cada una de las columnas, ```manipuladora```, ```beneficio```, ```Alimentos```, ```Raciones```. Ubicado en ```modules/db_management.py```
 
 ### Estimación de costos de Escala
-Para estimar los costos de escaña se calculó la recta de mínimos cuadrados ponderados que mejor ajustaba a los datos, esto con los módulos en ```preprocess_scale.py```. Ubicado en ```modules```.
+Para estimar los costos de escala se calculó la recta de mínimos cuadrados ponderados que mejor ajustaba a los datos, esto con los módulos en ```preprocess_scale.py```. Ubicado en ```modules```.
 
 ### Estimación de costos logísticos
 Para reducir la complejidad del problema, se hace una estimación de los costos logísticos por colegio cada mes. Esto se modeló en la clase ```TSPApprox```, ubicada en ```modules/tsp.py```. 
@@ -70,9 +75,9 @@ Por último, con la función ```total_plot_uts``` se guarda la visualización de
 ### Resultados
 Se puede obtener los resultados de los colegios asignados a cada ut mediante ```ut_assignation()```, ubicada en ```modules/db_management.py```. Esta función recibe el dataset solución de ```UTSolver``` y retorna un dataset separado por colegio, como estaba en un principio, antes de aplicar ```join_duplicate_schools()```. En otras palabras, esto hace la función inversa
 
+
+
 ### Cosas no agregadas
 1. add_profit() en db_management.py
-2.  plot_graph() en graph.py
-3.  **Cambiar gráficos (Esperar aviso de Rob)**
-4.  **Logísticas. en junaeb creator. 6,7,8 and if save_logistics**
-5.  **Diferencia entre beneficio y profit**
+2.  plot_graph() en graph.py **Yo no la pondría**
+3.  **Diferencia entre beneficio y profit**
