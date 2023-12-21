@@ -3,15 +3,19 @@
 Datos e implementaciones para resolver el problema de asignación de UTs para la Junaeb
 
 ### Requerimientos
-Para asegurar el correcto funcionamiento del algoritmo, se deben cumplir los requerimientos de librerías instaladas, las que incluyen:
+Para asegurar el correcto funcionamiento del algoritmo, hay que tener instalado ````c++```` y ````python>=3.6````. Para el primero, hay que además tener disponible un compilador.
+
+Además, se deben cumplir los requerimientos de librerías instaladas, las que incluyen:
 * geopandas==0.14.0
 * matplotlib==3.8.0
 * networkx==3.1
 * numpy==1.26.0
 * pandas==2.1.1
 * tqdm==4.66.1
+* statsmodels==0.14.1
+
 Para estos efectos, se puede verificar el cumplimiento de estas con ```check_import_requirements()``` ubicada en ```modules/requirements.py```
-En el caso de no cumplir los requerimientos, se puede ejecutar el comando ```pip install -r requirements.txt'```
+En el caso de no cumplir los requerimientos de librerías, se puede ejecutar el comando ```pip install -r requirements.txt'```
 
 ### Datos
 Se hace uso de los dos datasets:
@@ -25,20 +29,18 @@ Para estos efectos, se puede verificar el cumplimiento de estas con ```check_dat
 Para manejar los datos, se realizan los siguientes procesos en orden:
 1. ```get_coords_osm()``` y ```get_coords_google()```: Obtener las coordenadas de colegios que <añadir restricción> a partir de la dirección indicada en el dataset ```Colegios2020.xlsx```. Ubicada en ```modules/geo.py```
 2. ```join_duplicate_schools()```: Hace un merge entre los colegios que están en la misma ubicación, considerándolos uno solo. Ahora cada fila tiene una lista de RBD's. Ubicada en ```modules/db_management.py```
-3. ```nearest_points()```: Obtener una los ````k```` (28 en nuestro caso) vecinos más cercanos, dado un radio máximo dado como input. Para esto, se usa ```convert_to_degrees``` y ```convert_to_meters```. Ubicada en ```modules/geo.py```
-4. ```get_closest_dijkstra()```: Obtener una los ````k```` (**30 en nuestro caso**) vecinos más cercanos. Ubicada en ```modules/find_neighs.py```. Duplicada
-5. **Filtración de columnas y borrar nuls**
-6. **Creo que deberíamos colocar lo que se hizo con el dataset 2019 en vez de los anteriores**
+3. ```get_closest_dijkstra()```: Obtener una los ````k```` (25 en nuestro caso) vecinos más cercanos, dado un radio máximo dado como input. Ubicada en ```modules/find_neighs.py```. Para esto, se usa ```convert_to_degrees``` y ```convert_to_meters```. Ubicada en ```modules/geo.py```. ```nearest_points()```, ````get_closest()```` y ```get_closest_intersect``` hacen lo mismo con otros métodos. Ubicados en ```geo.py``` y ````find_neighs.py````.
+4. ```add_food_rations_and_costs```: Añade al dataset cada una de las columnas, ```manipuladora```, ```beneficio```, ```Alimentos```, ```Raciones```. Ubicado en ```modules/db_management.py```
 
-### Cálculo de costos de Escala
-**Faltante**
+### Estimación de costos de Escala
+Para estimar los costos de escaña se calculó la recta de mínimos cuadrados ponderados que mejor ajustaba a los datos, esto con los módulos en ```preprocess_scale.py```. Ubicado en ```modules```.
 
 ### Estimación de costos logísticos
 Para reducir la complejidad del problema, se hace una estimación de los costos logísticos por colegio cada mes. Esto se modeló en la clase ```TSPApprox```, ubicada en ```modules/tsp.py```. 
 
 La clase recibe parámetros fijos que usa para la aproximación, estos se encuentran en ```modules/parameters.py``` y desde ahora, se notarán como ```p.ATRIBUTO```
 
-El algoritmo, implementado en el método ```solve()```, calcula un estimado para cada colegio calculando el promedio de ```p.MAX_SAMPLES``` TSP's, haciendo un sampling de los ````k```` colegios más cercanos. Las muestras se hacen tomando una distribución dada por las distancias inversas **respecto al camino obtenido mediante dijkstra**, con el método ```get_options_dijkstra()```.
+El algoritmo, implementado en el método ```solve()```, calcula un estimado para cada colegio calculando el promedio de ```p.MAX_SAMPLES``` TSP's, haciendo un sampling de los ````k```` colegios más cercanos. Las muestras se hacen tomando una distribución dada por las distancias inversas respecto al camino obtenido mediante Dijkstra, con el método ```get_options_dijkstra()```.
 
 Vale recalcar, cada TSP se resuelve mediante ```tsp_run()```, que a su vez hace un llamado al compilado, cuya dirección se encuentra en ```p.RUN_COMMAND```. El compilado proviene de un archivo cuya dirección se encuentra en ```p.COMP_COMMAND```.
 
@@ -47,13 +49,15 @@ El resultado del cálculo de cada TSP muestreado, hecho en ```tsp_sample()```, e
 ### Asignación de Unidades Territoriales
 La asignación de unidades territoriales resuelve con la clase en ```UTSolver``` en ```modules/ut_solver.py```, usando la estimación de costos logísticos
 
-Primeramente, se calcula un Minimum Spanning Tree, con la función ```MST()```, que retorna una lista de aristas. Esto se hace de manera que cada corte en el grafo genere dos árboles, ubicada en ```modules/graph.py```. 
+Primeramente, se calcula un Minimum Spanning Tree, con la función ```MST()```, que retorna una lista de aristas. Esto se hace de manera que cada corte en el grafo genere dos árboles. Además, para manejar el grafo, se utilizan además dos funciones, ```get_adj_list()``` y ```get_edges()```. La primera, obtiene una lista de adyacencia de un grafo completo, a partir de puntos. La segunda, a partir de la lista de adyacencia, obtiene todas las aristas del grafo. Funciones ubicadas en ```modules/graph.py```.
 
-Posteriormente, se utiliza una estrategia divide and conquer, iniciando todo Chile con una unidad territorial, para después ir dividiéndolo hasta que cada subárbol (UT) generado cumpla que tenga una cantidad de raciones menor a ```p.MAXR```. Además, existe la restricción de que cada subárbol generado, debe tener una cantidad de raciones mayor a ```p.MINR```.
+Posteriormente, se utiliza una estrategia divide and conquer, iniciando todo Chile con una unidad territorial, para después ir dividiéndolo hasta que cada subárbol (UT) generado cumpla que tenga una cantidad de raciones menor a ```p.MAXR```. Además, existe la restricción de que cada subárbol generado, debe tener una cantidad de raciones mayor a ```p.MINR```. En el camino, se va asignando cada UT a su nodo correspondiente del árbol mediante la función ```assign_ut_to_nodes()```. Ubicada en ```modules/graph.py``` y como método de ```UTSolver```
 
-La manera en la que se encuentra la mejor arista de corte es buscando extensivamente la mejor arista que cumpla con ```p.A```*```ratio_val``` + ```p.B```*```ratio_compacity```, donde ````ratio_compacity```` es la compacidad y  ```ratio_val``` indica cuántas veces más grande es la UT más grande creada por el corte versus la más pequeña (en términos de ganancia esperada). Además, ```p.A``` es la constante de regularización de la razón de profit y ```p.B``` es la constante de regularización de la compacidad.
+La manera en la que se encuentra la mejor arista de corte es buscando extensivamente la mejor arista que cumpla con ```p.A```*```ratio_val``` + ```p.B```*```ratio_compacity```, donde ````ratio_compacity```` es la compacidad y  ```ratio_val``` indica cuántas veces más grande es la UT más grande creada por el corte versus la más pequeña (en términos de ganancia esperada). Además, ```p.A``` es la constante de regularización de la razón de profit y ```p.B``` es la constante de regularización de la compacidad. La búsqueda extensiva en cada paso se hace mediante la función ```find_best_split()```. Ubicada en```modules/graph.py``` y también como método de ```UTSolver```.
 
-El cálculo de la compacidad se realiza obteniendo la suma de dos ratios. El primero, se calcula mediante la razón entre el mayor y menor lado del rectángulo envolvente del punto . El segundo, se calcula mediante el menor rectángulo envolvente de la UT creada y sus vecinos.
+El cálculo de la compacidad se realiza obteniendo la suma de dos ratios. El primero, se calcula mediante la razón entre el mayor y menor lado del rectángulo envolvente de la UT correspondiente a debajo del corte realizado. El segundo, se calcula mediante el menor rectángulo envolvente de la UT creada arriba del corte realizado.
+
+Por otro lado, el calculo del valor de ```ratio_val```, se hace mediante la función ```get_subtree_metrics()```, que calcula para cierto nodo y árbol, su profit, número de raciones y máximo y mínimo espacial de la UT creada. Ubicada en```modules/graph.py``` y también como método de ```UTSolver```.
 
 
 ### Plot de resultados
@@ -63,26 +67,12 @@ En primer lugar, con la función ```single_plot_uts``` se guarda la visualizaci�
 Por último, con la función ```total_plot_uts``` se guarda la visualización de todas las regiones juntas, en subplots separados en un archivo llamado ```UTs.png```. El resultado, tiene el formato de a continuación:
 ![Referencia de UT's creadas](./plots/UTs.png)
 
-### Cosas no agregadas
-1. add_food_rations_and_costs() en db_management.py
-2. add_profit() en db_management.py
-3. ut_assignation() en db_management.py
-4. save_data() en db_management.py
-5. get_closest() en find_neighs.py
-6. get_closest_dijkstra() en find_neighs.py
-7. get_closest_intersect() en find_neighs.py
-8. nearest_points() en geo.py
-9. find() en graph.py
-10. union() en graph.py
-11. get_adj_list() en graph.py
-12. get_edges() en graph.py
-13. distance() en graph.py
-14. plot_graph() en graph.py
-15. get_subtree_metrics() en graph.py
-16. find_best_split() en graph.py (Duplicado de UT solver)
-17. assign_ut_to_nodes() en graph.py
-18. Parameters.py
-19. class UTSolver en ut_solver.py
+### Resultados
+Se puede obtener los resultados de los colegios asignados a cada ut mediante ```ut_assignation()```, ubicada en ```modules/db_management.py```. Esta función recibe el dataset solución de ```UTSolver``` y retorna un dataset separado por colegio, como estaba en un principio, antes de aplicar ```join_duplicate_schools()```. En otras palabras, esto hace la función inversa
 
-### Cosas que no se usan
-1. p.MAXSZ
+### Cosas no agregadas
+1. add_profit() en db_management.py
+2.  plot_graph() en graph.py
+3.  **Cambiar gráficos (Esperar aviso de Rob)**
+4.  **Logísticas. en junaeb creator. 6,7,8 and if save_logistics**
+5.  **Diferencia entre beneficio y profit**
