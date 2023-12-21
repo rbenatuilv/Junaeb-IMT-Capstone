@@ -39,11 +39,11 @@ class UTSolver:
         self.UT = [-1 for _ in range(self.n)]
         self.subv = [0 for _ in range(self.n)]
         self.subr = [0 for _ in range(self.n)]
-        self.maxx = [0 for _ in range(self.n)]
+        self.maxx = [0 for _ in range(self.n)] # Max in x of subtree below of v
         self.minx = [0 for _ in range(self.n)]
         self.maxy = [0 for _ in range(self.n)]
         self.miny = [0 for _ in range(self.n)]
-        self.umaxx = [0 for _ in range(self.n)]
+        self.umaxx = [0 for _ in range(self.n)] # Max in x of subtree above of v
         self.uminx = [0 for _ in range(self.n)]
         self.umaxy = [0 for _ in range(self.n)]
         self.uminy = [0 for _ in range(self.n)]
