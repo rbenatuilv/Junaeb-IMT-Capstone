@@ -35,10 +35,11 @@ Para manejar los datos, se realizan los siguientes procesos en orden:
 1. ```get_coords_osm()``` y ```get_coords_google()```: Obtener las coordenadas de colegios que <añadir restricción> a partir de la dirección indicada en el dataset ```Colegios2020.xlsx```. Ubicada en ```modules/geo.py```
 2. ```join_duplicate_schools()```: Hace un merge entre los colegios que están en la misma ubicación, considerándolos uno solo. Ahora cada fila tiene una lista de RBD's. Ubicada en ```modules/db_management.py```
 3. ```get_closest_dijkstra()```: Obtener una los ````k```` (25 en nuestro caso) vecinos más cercanos, dado un radio máximo dado como input. Ubicada en ```modules/find_neighs.py```. Para esto, se usa ```convert_to_degrees``` y ```convert_to_meters```. Ubicada en ```modules/geo.py```. ```nearest_points()```, ````get_closest()```` y ```get_closest_intersect``` hacen lo mismo con otros métodos. Ubicados en ```geo.py``` y ````find_neighs.py````.
-4. ```add_food_rations_and_costs```: Añade al dataset cada una de las columnas, ```manipuladora```, ```beneficio```, ```Alimentos```, ```Raciones```. Ubicado en ```modules/db_management.py```
+4. ```add_food_rations_and_costs```: Añade al dataset cada una de las columnas, ```manipuladora```, ```beneficio```, ```Alimentos```, ```Raciones```. Estas columnas representan costo de manipuladoras, lo que se le paga a cada empresa según los datos, lo que cuesta los alimentos y la cantidad de raciones; respectivamente. Ubicado en ```modules/db_management.py```.
+5. ```add_profit()```: Añade al dataset la columna profit. Esta columna representa la ganancia de la empresa. Ubicado en ```modules/db_management.py```.
 
 ### Estimación de costos de Escala
-Para estimar los costos de escala se calculó la recta de mínimos cuadrados ponderados que mejor ajustaba a los datos, esto con los módulos en ```preprocess_scale.py```. Ubicado en ```modules```.
+Para estimar los costos de escala se calculó la recta de mínimos cuadrados ponderados que mejor ajustaba a los datos, esto con los módulos en ```preprocess_scale.py```. Ubicado en ```modules```. Finalmente, dada la baja significancia de la recta obtenida y el valor de la pendiente obtenida, desde este punto se usa el primer parámetro como precio constante, eliminando las economías de escala del modelamiento
 
 ### Estimación de costos logísticos
 Para reducir la complejidad del problema, se hace una estimación de los costos logísticos por colegio cada mes. Esto se modeló en la clase ```TSPApprox```, ubicada en ```modules/tsp.py```. 
@@ -75,9 +76,5 @@ Por último, con la función ```total_plot_uts``` se guarda la visualización de
 ### Resultados
 Se puede obtener los resultados de los colegios asignados a cada ut mediante ```ut_assignation()```, ubicada en ```modules/db_management.py```. Esta función recibe el dataset solución de ```UTSolver``` y retorna un dataset separado por colegio, como estaba en un principio, antes de aplicar ```join_duplicate_schools()```. En otras palabras, esto hace la función inversa
 
-
-
-### Cosas no agregadas
-1. add_profit() en db_management.py
-2.  plot_graph() en graph.py **Yo no la pondría**
-3.  **Diferencia entre beneficio y profit**
+### Comparación de soluciones
+En el archivo ```stats.ipynb``` se comparan las estadísticas de las soluciones entre 2019 y hoy. El profit correspondiente a cada UT en la solución antigua se obtiene mediante la función ```get_ut_profits()```, ubicada en ```modules/db_management.py```. Posteriormente, mediante los profits correspondientes, se obtienen las estadísticas del promedio, máximo y mínimo de diferencia cada UT. Para este cálculo, se usa la función ```obtain_stats()```, ubicada en ```modules/db_management.py```.
